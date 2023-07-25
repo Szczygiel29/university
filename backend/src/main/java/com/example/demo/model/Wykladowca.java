@@ -22,10 +22,4 @@ public class Wykladowca {
     @OneToMany(mappedBy = "wykladowca")
     private List<Ocena> oceny;
 
-    public Wykladowca(String imie, String nazwisko, String stopien, List<Ocena> oceny) {
-        this.imie = imie;
-        this.nazwisko = nazwisko;
-        this.stopien = stopien;
-        this.oceny = oceny;
-    }
 }
