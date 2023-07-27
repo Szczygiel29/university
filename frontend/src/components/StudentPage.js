@@ -12,7 +12,15 @@ function StudentPage() {
 
     const fetchData = async () => {
         try {
-            const response = await fetch('http://localhost:8080/student');
+            const login = 'admin';
+            const password = 'admin';
+
+            const response = await fetch('http://localhost:8080/student', {
+                    headers: {
+                        Authorization: 'Basic ' + btoa(`${login}:${password}`),
+                    }
+                });
+
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
