@@ -13,6 +13,7 @@
 .student-table td {
     padding: 8px;
     border-bottom: 1px solid #ddd;
+    text-align: left;
 }
 
 .student-table tbody tr:first-child td {
