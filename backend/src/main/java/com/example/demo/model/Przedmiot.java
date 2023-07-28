@@ -19,9 +19,5 @@ public class Przedmiot {
     @OneToMany(mappedBy = "przedmiot")
     private List<Ocena> oceny;
 
-    public Przedmiot(String nazwa, List<Ocena> oceny) {
-        this.nazwa = nazwa;
-        this.oceny = oceny;
-    }
 
 }

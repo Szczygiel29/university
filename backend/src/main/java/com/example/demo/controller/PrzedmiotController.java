@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/przemdiot")
+@RequestMapping("/przedmiot")
 public class PrzedmiotController {
     private final PrzedmiotService przedmiotService;
 

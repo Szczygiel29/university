@@ -2,6 +2,7 @@ package com.example.demo.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -35,16 +36,27 @@ public class SecurityConfig {
     }
 
     @Bean
+    @Order(1)
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> {
                     auth.requestMatchers("/wykladowca/**").permitAll();
-                    auth.requestMatchers("/swagger-ui/**").hasRole("ADMIN");
                     auth.anyRequest().authenticated();
                 })
                 .httpBasic(Customizer.withDefaults())
+                .build();
+    }
+
+    @Bean
+    @Order(2)
+    public SecurityFilterChain swaggerFilterChain(HttpSecurity httpSecurity) throws Exception{
+        return httpSecurity
+                .csrf(AbstractHttpConfigurer::disable)
+                .cors(Customizer.withDefaults())
+                .authorizeHttpRequests(auth -> auth.requestMatchers("/swagger-ui/**").hasRole("ADMIN"))
+                .formLogin(Customizer.withDefaults())
                 .build();
     }
 

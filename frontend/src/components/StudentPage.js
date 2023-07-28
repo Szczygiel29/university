@@ -12,8 +12,8 @@ function StudentPage() {
 
     const fetchData = async () => {
         try {
-            const login = 'admin';
-            const password = 'admin';
+            const login = 'user';
+            const password = 'user';
 
             const response = await fetch('http://localhost:8080/student', {
                     headers: {
