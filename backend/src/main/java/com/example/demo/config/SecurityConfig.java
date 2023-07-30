@@ -36,29 +36,19 @@ public class SecurityConfig {
     }
 
     @Bean
-    @Order(1)
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> {
                     auth.requestMatchers("/wykladowca/**").permitAll();
+                    auth.requestMatchers("/swagger-ui/**").hasRole("ADMIN");
                     auth.anyRequest().authenticated();
                 })
                 .httpBasic(Customizer.withDefaults())
                 .build();
     }
 
-    @Bean
-    @Order(2)
-    public SecurityFilterChain swaggerFilterChain(HttpSecurity httpSecurity) throws Exception{
-        return httpSecurity
-                .csrf(AbstractHttpConfigurer::disable)
-                .cors(Customizer.withDefaults())
-                .authorizeHttpRequests(auth -> auth.requestMatchers("/swagger-ui/**").hasRole("ADMIN"))
-                .formLogin(Customizer.withDefaults())
-                .build();
-    }
 
     @Bean
     public PasswordEncoder passwordEncoder(){
