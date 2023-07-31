@@ -19,11 +19,16 @@ class CustomErrorControllerTest {
     @Autowired
     private MockMvc mockMvc;
     @Test
-    void testErrorHandling() throws Exception {
+    void testErrorHandling() {
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/error"))
-                .andExpect(status().isUnauthorized())
-                .andReturn();
+        try {
+            mockMvc.perform(MockMvcRequestBuilders.get("/error"))
+                    .andExpect(status().isUnauthorized())
+                    .andReturn();
+        } catch (Exception e) {
+            System.out.println("Error " + e.getMessage());
+            throw new RuntimeException(e);
+        }
 
     }
 }

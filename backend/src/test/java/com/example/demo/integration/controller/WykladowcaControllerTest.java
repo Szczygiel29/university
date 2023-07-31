@@ -2,6 +2,7 @@ package com.example.demo.integration.controller;
 
 import com.example.demo.model.Wykladowca;
 import com.example.demo.repository.WykladowcaRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterEach;
@@ -16,6 +17,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -43,18 +45,36 @@ class WykladowcaControllerTest {
 
     @Test
     @Sql("/import_wykladowca.sql")
-    void getAllWykladowca() throws Exception {
+    void getAllWykladowca()  {
         // Given
         // When
-        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/wykladowca"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$").isArray())
-                .andReturn();
+        MvcResult mvcResult = null;
+        try {
+            mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/wykladowca"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$").isArray())
+                    .andReturn();
+        } catch (Exception e) {
+            System.out.println("Error " + e.getMessage());
+            throw new RuntimeException(e);
+        }
 
         // Then
-        String jsonResponse = mvcResult.getResponse().getContentAsString();
-        List<Wykladowca> wykladowcaList = objectMapper.readValue(jsonResponse, new TypeReference<List<Wykladowca>>() {
-        });
+        String jsonResponse = null;
+        try {
+            jsonResponse = mvcResult.getResponse().getContentAsString();
+        } catch (UnsupportedEncodingException e) {
+            System.out.println("Error " + e.getMessage());
+            throw new RuntimeException(e);
+        }
+        List<Wykladowca> wykladowcaList = null;
+        try {
+            wykladowcaList = objectMapper.readValue(jsonResponse, new TypeReference<List<Wykladowca>>() {
+            });
+        } catch (JsonProcessingException e) {
+            System.out.println("Error " + e.getMessage());
+            throw new RuntimeException(e);
+        }
 
         assertThat(wykladowcaList).isNotNull();
         assertThat(wykladowcaList).hasSize(3);
@@ -69,13 +89,25 @@ class WykladowcaControllerTest {
 
     @Test
     @Sql("/import_wykladowca.sql")
-    void getWykladowcaByID() throws Exception {
-        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/wykladowca/2"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(2))
-                .andReturn();
+    void getWykladowcaByID() {
+        MvcResult mvcResult = null;
+        try {
+            mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/wykladowca/2"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.id").value(2))
+                    .andReturn();
+        } catch (Exception e) {
+            System.out.println("Error " + e.getMessage());
+            throw new RuntimeException(e);
+        }
 
-        Wykladowca wykladowca = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), Wykladowca.class);
+        Wykladowca wykladowca = null;
+        try {
+            wykladowca = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), Wykladowca.class);
+        } catch (JsonProcessingException | UnsupportedEncodingException e) {
+            System.out.println("Error " + e.getMessage());
+            throw new RuntimeException(e);
+        }
 
         assertThat(wykladowca).isNotNull();
         assertThat(wykladowca.getID()).isEqualTo(2);
@@ -86,27 +118,50 @@ class WykladowcaControllerTest {
 
     @Test
     @Sql("/import_wykladowca.sql")
-    void updateStudent() throws Exception {
+    void updateStudent() {
         // Given
         Wykladowca wykladowcaToUpdate = new Wykladowca();
         wykladowcaToUpdate.setImie("New Name");
         wykladowcaToUpdate.setNazwisko("New Surname");
         wykladowcaToUpdate.setStopien("Inzynier");
 
-        String requestBody = objectMapper.writeValueAsString(wykladowcaToUpdate);
+        String requestBody = null;
+        try {
+            requestBody = objectMapper.writeValueAsString(wykladowcaToUpdate);
+        } catch (JsonProcessingException e) {
+            System.out.println("Error " + e.getMessage());
+            throw new RuntimeException(e);
+        }
 
         // When
-        mockMvc.perform(MockMvcRequestBuilders.patch("/wykladowca/update/1")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(requestBody))
-                .andExpect(status().isOk());
+        try {
+            mockMvc.perform(MockMvcRequestBuilders.patch("/wykladowca/update/1")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(requestBody))
+                    .andExpect(status().isOk());
+        } catch (Exception e) {
+            System.out.println("Error " + e.getMessage());
+            throw new RuntimeException(e);
+        }
 
         // Then
-        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/wykladowca/1"))
-                .andExpect(status().isOk())
-                .andReturn();
+        MvcResult mvcResult = null;
+        try {
+            mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/wykladowca/1"))
+                    .andExpect(status().isOk())
+                    .andReturn();
+        } catch (Exception e) {
+            System.out.println("Error " + e.getMessage());
+            throw new RuntimeException(e);
+        }
 
-        Wykladowca updatedWykladowca = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), Wykladowca.class);
+        Wykladowca updatedWykladowca = null;
+        try {
+            updatedWykladowca = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), Wykladowca.class);
+        } catch (JsonProcessingException | UnsupportedEncodingException e) {
+            System.out.println("Error " + e.getMessage());
+            throw new RuntimeException(e);
+        }
 
         assertThat(updatedWykladowca).isNotNull();
         assertThat(updatedWykladowca.getID()).isEqualTo(1L);
@@ -116,9 +171,14 @@ class WykladowcaControllerTest {
 
     @Test
     @Sql("/import_wykladowca.sql")
-    void deleteWykladowca() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.delete("/wykladowca/delete/2"))
-                .andExpect(status().isOk());
+    void deleteWykladowca() {
+        try {
+            mockMvc.perform(MockMvcRequestBuilders.delete("/wykladowca/delete/2"))
+                    .andExpect(status().isOk());
+        } catch (Exception e) {
+            System.out.println("Error " + e.getMessage());
+            throw new RuntimeException(e);
+        }
     }
 
 }

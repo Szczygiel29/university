@@ -2,6 +2,7 @@ package com.example.demo.integration.controller;
 
 import com.example.demo.model.Student;
 import com.example.demo.repository.StudnetRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterEach;
@@ -17,6 +18,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -45,18 +47,36 @@ class StudentControllerTest {
 
     @Test
     @Sql("/import_student.sql")
-    void getAllStudent() throws Exception {
+    void getAllStudent() {
         //give
         //when
-        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/student"))
-                .andDo(MockMvcResultHandlers.print())
-                .andExpect(status().is(200))
-                .andExpect(jsonPath("$").isArray())
-                .andReturn();
+        MvcResult mvcResult = null;
+        try {
+            mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/student"))
+                    .andDo(MockMvcResultHandlers.print())
+                    .andExpect(status().is(200))
+                    .andExpect(jsonPath("$").isArray())
+                    .andReturn();
+        } catch (Exception e) {
+            System.out.println("Error " + e.getMessage());
+            throw new RuntimeException(e);
+        }
         //then
-        String jsonResponse = mvcResult.getResponse().getContentAsString();
-        List<Student> studentList = objectMapper.readValue(jsonResponse, new TypeReference<List<Student>>() {
-        });
+        String jsonResponse = null;
+        try {
+            jsonResponse = mvcResult.getResponse().getContentAsString();
+        } catch (UnsupportedEncodingException e) {
+            System.out.println("Error " + e.getMessage());
+            throw new RuntimeException(e);
+        }
+        List<Student> studentList = null;
+        try {
+            studentList = objectMapper.readValue(jsonResponse, new TypeReference<List<Student>>() {
+            });
+        } catch (JsonProcessingException e) {
+            System.out.println("Error " + e.getMessage());
+            throw new RuntimeException(e);
+        }
 
         assertThat(studentList).isNotNull();
 
@@ -71,13 +91,25 @@ class StudentControllerTest {
 
     @Test
     @Sql("/import_student.sql")
-    void getStudentByID() throws Exception {
-        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/student/2"))
-                .andExpect(status().is(200))
-                .andExpect(jsonPath("$.id").value(2))
-                .andReturn();
+    void getStudentByID() {
+        MvcResult mvcResult = null;
+        try {
+            mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/student/2"))
+                    .andExpect(status().is(200))
+                    .andExpect(jsonPath("$.id").value(2))
+                    .andReturn();
+        } catch (Exception e) {
+            System.out.println("Error " + e.getMessage());
+            throw new RuntimeException(e);
+        }
 
-        Student student = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), Student.class);
+        Student student = null;
+        try {
+            student = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), Student.class);
+        } catch (JsonProcessingException | UnsupportedEncodingException e) {
+            System.out.println("Error " + e.getMessage());
+            throw new RuntimeException(e);
+        }
 
         assertThat(student).isNotNull();
         assertThat(student.getID()).isEqualTo(2);
@@ -87,24 +119,47 @@ class StudentControllerTest {
 
     @Test
     @Sql("/import_student.sql")
-    void updateStudent() throws Exception {
+    void updateStudent() {
         Student studentToUpdate = new Student();
         studentToUpdate.setImie("Hanna");
         studentToUpdate.setNazwisko("Szczygiel");
 
-        String requestBody = objectMapper.writeValueAsString(studentToUpdate);
+        String requestBody = null;
+        try {
+            requestBody = objectMapper.writeValueAsString(studentToUpdate);
+        } catch (JsonProcessingException e) {
+            System.out.println("Error " + e.getMessage());
+            throw new RuntimeException(e);
+        }
 
-        mockMvc.perform(MockMvcRequestBuilders.patch("/student/update/2")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(requestBody))
-                .andExpect(status().isOk());
+        try {
+            mockMvc.perform(MockMvcRequestBuilders.patch("/student/update/2")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(requestBody))
+                    .andExpect(status().isOk());
+        } catch (Exception e) {
+            System.out.println("Error " + e.getMessage());
+            throw new RuntimeException(e);
+        }
         //when
-        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/student/2"))
-                .andExpect(status().is(200))
-                .andReturn();
+        MvcResult mvcResult = null;
+        try {
+            mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/student/2"))
+                    .andExpect(status().is(200))
+                    .andReturn();
+        } catch (Exception e) {
+            System.out.println("Error " + e.getMessage());
+            throw new RuntimeException(e);
+        }
 
         //then
-        Student updatedStudent = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), Student.class);
+        Student updatedStudent = null;
+        try {
+            updatedStudent = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), Student.class);
+        } catch (JsonProcessingException | UnsupportedEncodingException e) {
+            System.out.println("Error " + e.getMessage());
+            throw new RuntimeException(e);
+        }
 
         assertThat(updatedStudent).isNotNull();
         assertThat(updatedStudent.getID()).isEqualTo(2L);
@@ -114,8 +169,13 @@ class StudentControllerTest {
 
     @Test
     @Sql("/import_student.sql")
-    void deleteStudent() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.delete("/student/delete/3"))
-                .andExpect(status().isOk());
+    void deleteStudent() {
+        try {
+            mockMvc.perform(MockMvcRequestBuilders.delete("/student/delete/3"))
+                    .andExpect(status().isOk());
+        } catch (Exception e) {
+            System.out.println("Error " + e.getMessage());
+            throw new RuntimeException(e);
+        }
     }
 }

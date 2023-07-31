@@ -2,6 +2,7 @@ package com.example.demo.integration.controller;
 
 import com.example.demo.model.Przedmiot;
 import com.example.demo.repository.PrzedmiotRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterAll;
@@ -18,6 +19,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -45,18 +47,37 @@ class PrzedmiotControllerTest {
 
     @Test
     @Sql("/import_przedmiot.sql")
-    void shouldGetAllPrzedmiot() throws Exception {
+    void shouldGetAllPrzedmiot()  {
         //give
         //when
-        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/przedmiot"))
-                .andDo(MockMvcResultHandlers.print())
-                .andExpect(status().is(200))
-                .andExpect(jsonPath("$").isArray())
-                .andReturn();
+        MvcResult mvcResult = null;
+        try {
+            mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/przedmiot"))
+                    .andDo(MockMvcResultHandlers.print())
+                    .andExpect(status().is(200))
+                    .andExpect(jsonPath("$").isArray())
+                    .andReturn();
+        } catch (Exception e) {
+            System.out.println("Error " + e.getMessage());
+            throw new RuntimeException(e);
+        }
         //then
-        String jsonResponse = mvcResult.getResponse().getContentAsString();
-        List<Przedmiot> przedmiotList = objectMapper.readValue(jsonResponse, new TypeReference<List<Przedmiot>>() {
-        });
+        String jsonResponse = null;
+        try {
+            jsonResponse = mvcResult.getResponse().getContentAsString();
+        } catch (UnsupportedEncodingException e) {
+            System.out.println("Error " + e.getMessage());
+            throw new RuntimeException(e);
+        }
+
+        List<Przedmiot> przedmiotList = null;
+        try {
+            przedmiotList = objectMapper.readValue(jsonResponse, new TypeReference<List<Przedmiot>>() {
+            });
+        } catch (JsonProcessingException e) {
+            System.out.println("Error " + e.getMessage());
+            throw new RuntimeException(e);
+        }
 
         assertThat(przedmiotList).isNotNull();
 
@@ -69,16 +90,29 @@ class PrzedmiotControllerTest {
         assertThat(drugiPrzedmiot.getNazwa()).isEqualTo("Informatyka");
     }
 
+    //TODO
     @Test
     @Sql("/import_przedmiot.sql")
-    void shouldGetSinglePrzedmiot() throws Exception {
-        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/przedmiot/2"))
-                .andExpect(status().is(200))
-                .andExpect(jsonPath("$.id").value(2))
-                .andExpect(jsonPath("$.nazwa").value("Informatyka"))
-                .andReturn();
+    void shouldGetSinglePrzedmiot() {
+        MvcResult mvcResult = null;
+        try {
+            mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/przedmiot/2"))
+                    .andExpect(status().is(200))
+                    .andExpect(jsonPath("$.id").value(2))
+                    .andExpect(jsonPath("$.nazwa").value("Informatyka"))
+                    .andReturn();
+        } catch (Exception e) {
+            System.out.println("Error " + e.getMessage());
+            throw new RuntimeException(e);
+        }
 
-        Przedmiot przedmiot = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), Przedmiot.class);
+        Przedmiot przedmiot = null;
+        try {
+            przedmiot = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), Przedmiot.class);
+        } catch (JsonProcessingException | UnsupportedEncodingException e) {
+            System.out.println("Error " + e.getMessage());
+            throw new RuntimeException(e);
+        }
 
         assertThat(przedmiot).isNotNull();
         assertThat(przedmiot.getID()).isEqualTo(2);
@@ -88,24 +122,47 @@ class PrzedmiotControllerTest {
 
     @Test
     @Sql("/import_przedmiot.sql")
-    void shouldUpdatePrzedmiotByID() throws Exception {
+    void shouldUpdatePrzedmiotByID() {
         //given
         Przedmiot przedmiotToUpdate = new Przedmiot();
         przedmiotToUpdate.setNazwa("Matematyka II");
 
-        String requestBody = objectMapper.writeValueAsString(przedmiotToUpdate);
+        String requestBody = null;
+        try {
+            requestBody = objectMapper.writeValueAsString(przedmiotToUpdate);
+        } catch (JsonProcessingException e) {
+            System.out.println("Error " + e.getMessage());
+            throw new RuntimeException(e);
+        }
 
-        mockMvc.perform(MockMvcRequestBuilders.patch("/przedmiot/update/3")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(requestBody))
-                .andExpect(status().isOk());
+        try {
+            mockMvc.perform(MockMvcRequestBuilders.patch("/przedmiot/update/3")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(requestBody))
+                    .andExpect(status().isOk());
+        } catch (Exception e) {
+            System.out.println("Error " + e.getMessage());
+            throw new RuntimeException(e);
+        }
         //when
-        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/przedmiot/3"))
-                .andExpect(status().is(200))
-                .andReturn();
+        MvcResult mvcResult = null;
+        try {
+            mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/przedmiot/3"))
+                    .andExpect(status().is(200))
+                    .andReturn();
+        } catch (Exception e) {
+            System.out.println("Error " + e.getMessage());
+            throw new RuntimeException(e);
+        }
 
         //then
-        Przedmiot updatedPrzedmiot = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), Przedmiot.class);
+        Przedmiot updatedPrzedmiot = null;
+        try {
+            updatedPrzedmiot = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), Przedmiot.class);
+        } catch (JsonProcessingException | UnsupportedEncodingException e) {
+            System.out.println("Error " + e.getMessage());
+            throw new RuntimeException(e);
+        }
 
         assertThat(updatedPrzedmiot).isNotNull();
         assertThat(updatedPrzedmiot.getID()).isEqualTo(3L);
@@ -114,8 +171,13 @@ class PrzedmiotControllerTest {
 
     @Test
     @Sql("/import_przedmiot.sql")
-    void shouldDeletePrzedmiotByID() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.delete("/przedmiot/delete/3"))
-                .andExpect(status().isOk());
+    void shouldDeletePrzedmiotByID() {
+        try {
+            mockMvc.perform(MockMvcRequestBuilders.delete("/przedmiot/delete/3"))
+                    .andExpect(status().isOk());
+        } catch (Exception e) {
+            System.out.println("Error " + e.getMessage());
+            throw new RuntimeException(e);
+        }
     }
 }

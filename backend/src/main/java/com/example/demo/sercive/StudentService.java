@@ -12,6 +12,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class StudentService {
+
     private final StudnetRepository studnetRepository;
 
     public List<Student> getAllStudents() {

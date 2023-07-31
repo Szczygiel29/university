@@ -1,0 +1,30 @@
+version: '3'
+services:
+  app:
+    image: unive_img:0.2
+    container_name: unive_container
+    ports:
+      - "8080:8080"
+    environment:
+      - spring.datasource.hikari.connection-timeout=20000
+      - spring.datasource.hikari.maximum-pool-size=5
+      - server.port=8080
+      - spring.datasource.driver-class-name=org.postgresql.Driver
+      - spring.datasource.url=jdbc:postgresql://172.17.0.1:5433/testSQL
+      - spring.datasource.username=postgres
+      - spring.datasource.password=Hewlett123
+      - spring.jpa.hibernate.ddl-auto=update
+      - spring.jpa.show-sql=true
+      - spring.jpa.properties.hibernate.format_sql=true
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:latest
+    container_name: postgres-db
+    environment:
+      - POSTGRES_DB=testSQL
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=Hewlett123
+    ports:
+      - "5433:5432"
